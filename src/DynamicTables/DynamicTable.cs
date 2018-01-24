@@ -10,7 +10,6 @@ namespace DynamicTables {
     public class DynamicTable {
         public IList<object> Columns { get; set; }
         public IList<object[]> Rows { get; protected set; }
-
         public ConsoleTableOptions Options { get; protected set; }
 
         public DynamicTable(params string[] columns)
@@ -44,7 +43,8 @@ namespace DynamicTables {
             return this;
         }
 
-        private static IEnumerable<string> GetColumn(object o) => o.GetType().GetProperties().Select(x => x.Name);
+        private static IEnumerable<string> GetColumn(object o) =>
+            o.GetType().GetProperties().Select(x => x.Name);
 
         public static DynamicTable From<T>(IEnumerable<T> values) {
             var table = new DynamicTable();
@@ -64,10 +64,11 @@ namespace DynamicTables {
                     table.AddRow(item.Select(x => x.Item2).ToArray());
                 }
             } else {
-                foreach (var propertyValues in values.Select(value => columns.Select(column => GetColumnValue<T>(value, column))))
+                var results = values.Select(value => columns.Select(column => GetColumnValue<T>(value, column)));
+                foreach (var propertyValues in results) {
                     table.AddRow(propertyValues.ToArray());
+                }
             }
-
             return table;
         }
 
