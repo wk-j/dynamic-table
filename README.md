@@ -2,10 +2,10 @@
 
 Write collection of anonymous object out to console, Most of code grep from [ConsoleTables](https://github.com/khalidabuhakmeh/ConsoleTables)
 
-## Installing
+## Installation
 
-```
-dotnet add package DynamicTables
+```bash
+dotnet add package wk.DynamicTables
 ```
 
 ## Usage
@@ -22,7 +22,7 @@ var data = new[] {
 DynamicTable.From(data).Write();
 ```
 
-```
+```bash
  -------------------
  | A   | B   | C   |
  -------------------
