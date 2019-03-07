@@ -6,5 +6,6 @@
         <PackageId>wk.DynamicTables</PackageId>
         <Authors>wk</Authors>
         <Title>Dynamic Tables</Title>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
 </Project>
