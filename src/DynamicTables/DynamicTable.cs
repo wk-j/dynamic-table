@@ -54,14 +54,29 @@ namespace DynamicTables {
 
             var isDynmaic = columns.Count() == 0;
             if (isDynmaic) {
-                var type = typeof(T);
-                var results = values.Select(value => value.GetType().GetProperties().Select(x => (x.Name, x.GetValue(value))));
-                var first = results.FirstOrDefault();
-                if (first != null) {
-                    table.AddColumn(first.Select(x => x.Item1));
-                }
-                foreach (var item in results) {
-                    table.AddRow(item.Select(x => x.Item2).ToArray());
+                try {
+                    var type = typeof(T);
+                    var results = values.Select(value => value.GetType().GetProperties().Select(x => (x.Name, x.GetValue(value))));
+                    var first = results.FirstOrDefault();
+                    if (first != null) {
+                        table.AddColumn(first.Select(x => x.Item1));
+                    }
+                    foreach (var item in results) {
+                        table.AddRow(item.Select(x => x.Item2).ToArray());
+                    }
+                } catch {
+                    var dicts = values.Select(x => {
+                        var dict = (IDictionary<String, Object>)x;
+                        return dict;
+                    });
+
+                    var first = dicts.FirstOrDefault();
+                    if (first != null) {
+                        table.AddColumn(first.Keys);
+                    }
+                    foreach (var dict in dicts) {
+                        table.AddRow(dict.Values.ToArray());
+                    }
                 }
             } else {
                 var results = values.Select(value => columns.Select(column => GetColumnValue<T>(value, column)));

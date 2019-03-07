@@ -1,5 +1,7 @@
 ## Dynamic Tables
 
+[![NuGet](https://img.shields.io/nuget/v/wk.DynamicTables.svg)](https://www.nuget.org/packages/wk.DynamicTables)
+
 Write collection of anonymous object out to console, Most of code grep from [ConsoleTables](https://github.com/khalidabuhakmeh/ConsoleTables)
 
 ## Installation
