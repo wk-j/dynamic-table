@@ -46,45 +46,72 @@ namespace DynamicTables {
         private static IEnumerable<string> GetColumn(object o) =>
             o.GetType().GetProperties().Select(x => x.Name);
 
-        public static DynamicTable From<T>(IEnumerable<T> values) {
-            var table = new DynamicTable();
-
-            var columns = GetColumns<T>();
-            table.AddColumn(columns);
-
-            var isDynmaic = columns.Count() == 0;
-            if (isDynmaic) {
-                try {
-                    var type = typeof(T);
-                    var results = values.Select(value => value.GetType().GetProperties().Select(x => (x.Name, x.GetValue(value))));
-                    var first = results.FirstOrDefault();
-                    if (first != null) {
-                        table.AddColumn(first.Select(x => x.Item1));
-                    }
-                    foreach (var item in results) {
-                        table.AddRow(item.Select(x => x.Item2).ToArray());
-                    }
-                } catch {
-                    var dicts = values.Select(x => {
-                        var dict = (IDictionary<String, Object>)x;
-                        return dict;
-                    });
-
-                    var first = dicts.FirstOrDefault();
-                    if (first != null) {
-                        table.AddColumn(first.Keys);
-                    }
-                    foreach (var dict in dicts) {
-                        table.AddRow(dict.Values.ToArray());
-                    }
+        private static DynamicTable FromDynamic<T>(IEnumerable<T> values) {
+            var type = typeof(T);
+            var results = values.Select(value => value.GetType().GetProperties().Select(x => (x.Name, x.GetValue(value))));
+            var first = results.FirstOrDefault();
+            if (first.Count() != 0) {
+                var table = new DynamicTable();
+                if (first != null) {
+                    table.AddColumn(first.Select(x => x.Item1));
                 }
+                foreach (var item in results) {
+                    table.AddRow(item.Select(x => x.Item2).ToArray());
+                }
+                return table;
             } else {
-                var results = values.Select(value => columns.Select(column => GetColumnValue<T>(value, column)));
-                foreach (var propertyValues in results) {
-                    table.AddRow(propertyValues.ToArray());
+                // dynamic query
+                var table = new DynamicTable();
+                var dicts = values.Select(x => {
+                    var dict = (IDictionary<String, Object>)x;
+                    return dict;
+                });
+
+                var fs = dicts.FirstOrDefault();
+                if (fs != null) {
+                    table.AddColumn(fs.Keys);
                 }
+                foreach (var dict in dicts) {
+                    table.AddRow(dict.Values.ToArray());
+                }
+                return table;
+            }
+        }
+
+        private static DynamicTable FromDictionary<T>(IEnumerable<T> values) {
+            var table = new DynamicTable();
+            var dicts = values.Select(x => (IDictionary<string, string>)x);
+            var fs = dicts.FirstOrDefault();
+            if (fs != null) {
+                table.AddColumn(fs.Keys);
+            }
+            foreach (var dict in dicts) {
+                table.AddRow(dict.Values.ToArray());
             }
             return table;
+        }
+
+        private static DynamicTable FromObject<T>(IEnumerable<T> values, IEnumerable<string> columns) {
+            var table = new DynamicTable();
+            table.AddColumn(columns);
+
+            var results = values.Select(value => columns.Select(column => GetColumnValue<T>(value, column)));
+            foreach (var propertyValues in results) {
+                table.AddRow(propertyValues.ToArray());
+            }
+            return table;
+        }
+
+        public static DynamicTable From<T>(IEnumerable<T> values) {
+            var columns = GetColumns<T>();
+            var isDynmaic = columns.Count() == 0;
+            if (typeof(T).Name == "Dictionary`2") {
+                return FromDictionary<T>(values);
+            } else if (isDynmaic) {
+                return FromDynamic<T>(values);
+            } else {
+                return FromObject<T>(values, columns);
+            }
         }
 
         public override string ToString() {
@@ -248,17 +275,5 @@ namespace DynamicTables {
                 && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
                 && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic;
         }
-    }
-
-    public class ConsoleTableOptions {
-        public IEnumerable<string> Columns { get; set; } = new List<string>();
-        public bool EnableCount { get; set; } = true;
-    }
-
-    public enum Format {
-        Default = 0,
-        MarkDown = 1,
-        Alternative = 2,
-        Minimal = 3
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace DynamicTables.Tests {
@@ -29,6 +30,24 @@ namespace DynamicTables.Tests {
                 new C(),
             };
             DynamicTable.From(data).Write();
+        }
+
+        [Fact]
+        public void DictTest() {
+            var dict = new Dictionary<string, string> {
+                ["A"] = "A",
+                ["B"] = "B",
+                ["C"] = "C"
+            };
+
+            var list = new List<Dictionary<string, string>> {
+                dict,
+                dict,
+                dict
+            };
+
+            DynamicTable.From(list).Write();
+
         }
     }
 }
