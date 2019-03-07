@@ -1,5 +1,6 @@
 ## Dynamic Tables
 
+[![Build Status](https://dev.azure.com/wk-j/dynamic-tables/_apis/build/status/wk-j.dynamic-tables?branchName=master)](https://dev.azure.com/wk-j/dynamic-tables/_build/latest?definitionId=22&branchName=master)
 [![NuGet](https://img.shields.io/nuget/v/wk.DynamicTables.svg)](https://www.nuget.org/packages/wk.DynamicTables)
 
 Write collection of anonymous object out to console, Most of code grep from [ConsoleTables](https://github.com/khalidabuhakmeh/ConsoleTables)
