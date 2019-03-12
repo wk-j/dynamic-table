@@ -37,7 +37,7 @@ namespace DynamicTables {
 
             if (Columns.Count != values.Length)
                 throw new Exception(
-                    $"The number columns in the row ({Columns.Count}) does not match the values ({values.Length}");
+                    $"The number columns in the row ({Columns.Count}) does not match the values ({values.Length})");
 
             Rows.Add(values);
             return this;
