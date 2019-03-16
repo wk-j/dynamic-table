@@ -125,6 +125,16 @@ namespace DynamicTables {
                 .Select(i => " | {" + i + ",-" + columnLengths[i] + "}")
                 .Aggregate((s, a) => s + a) + " |";
 
+            string f(object[] obj) {
+                return Enumerable.Range(0, Columns.Count)
+                    .Select(i => {
+                        var floating = obj[i].ToString().Where(FloatingCharacter.Glyph.IgnoreCharacters.Contains).Count();
+                        var k = " | {" + i + ",-" + (columnLengths[i] + floating) + "}";
+                        return k;
+                    })
+                    .Aggregate((s, a) => s + a) + " |";
+            }
+
             // find the longest formatted line
             var maxRowLength = Math.Max(0, Rows.Any() ? Rows.Max(row => string.Format(format, row).Length) : 0);
             var columnHeaders = string.Format(format, Columns.ToArray());
@@ -133,7 +143,8 @@ namespace DynamicTables {
             var longestLine = Math.Max(maxRowLength, columnHeaders.Length);
 
             // add each row
-            var results = Rows.Select(row => string.Format(format, row)).ToList();
+            //var results = Rows.Select((row, i) => string.Format(format, row)).ToList();
+            var results = Rows.Select((row, i) => string.Format(f(row), row)).ToList();
 
             // create the divider
             var divider = " " + string.Join("", Enumerable.Repeat("-", longestLine - 1)) + " ";
@@ -229,11 +240,20 @@ namespace DynamicTables {
         }
 
         private List<int> ColumnLengths() {
+            var floats = FloatingCharacter.Glyph.IgnoreCharacters;
             var columnLengths = Columns
                 .Select((t, i) => Rows.Select(x => x[i])
                     .Union(Columns)
                     .Where(x => x != null)
-                    .Select(x => x.ToString().Length).Max())
+                    .Select(x => {
+                        var value = x.ToString();
+                        var floatCount = value.Where(k => floats.Contains(k)).Count();
+                        var length = value.Length;
+                        //Console.WriteLine($"{length} {floatCount} {value}");
+                        //return length - floatCount;
+                        return length;
+                    })
+                    .Max())
                 .ToList();
             return columnLengths;
         }

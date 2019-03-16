@@ -8,4 +8,7 @@
         <Title>Dynamic Tables</Title>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
+    <ItemGroup>
+      <PackageReference Include="wk.FloatingCharacter" Version="19.3.16.1438" />
+    </ItemGroup>
 </Project>
