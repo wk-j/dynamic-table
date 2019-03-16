@@ -12,8 +12,8 @@ namespace DynamicTables.Query {
     class Student {
         [Key]
         public string Id { set; get; }
-        public string Name { set; get; }
-        public string LastName { set; get; }
+        public string T1 { set; get; }
+        public string T2 { set; get; }
     }
 
     class MyContext : DbContext {
@@ -29,16 +29,16 @@ namespace DynamicTables.Query {
             context.Database.EnsureCreated();
             context.Students.AddRange(new[] {
                 new Student {
-                    Name = "ทั้งดูหนังดูซีรี่ส์",
-                    LastName = "ย้ายค่ายมา์"
+                    T1 = "ทั้งดูหนังดูซีรี่ส์",
+                    T2 = "Tesla ประกาศแต่งตั้ง Zachary Kirkhorn"
                 },
                 new Student {
-                    Name = "ของธุรกิจถือ",
-                    LastName = "หมดปัญหารู้แค่เนื้อ"
+                    T1 = "ผู้พัฒนาเกม Stardew Valley",
+                    T2 = "ประกาศแผนการอัพเกรดสมาร์ทโฟนรุ่นเก่าๆ"
                 },
                 new Student {
-                    Name = "คนทำธุ",
-                    LastName = "แจ้งเหตุฉุกเฉิน"
+                    T1 = "ตามปีการเงินบริษัท 2019",
+                    T2 = "แจ้งเหตุฉุกเฉิน"
                 },
              });
             return await context.SaveChangesAsync();
@@ -63,7 +63,7 @@ namespace DynamicTables.Query {
             var connection = new NpgsqlConnection(str);
             var query = connection.Query<dynamic>(@"select * from ""Students"" limit 20");
 
-            var format = Format.Default;
+            var format = Format.MarkDown;
 
             DynamicTable.From(query).Write(format);
         }

@@ -114,6 +114,7 @@ namespace DynamicTables {
             }
         }
 
+
         public override string ToString() {
             var builder = new StringBuilder();
 
@@ -184,7 +185,10 @@ namespace DynamicTables {
             var columnHeaders = string.Format(format, Columns.ToArray());
 
             // add each row
-            var results = Rows.Select(row => string.Format(format, row)).ToList();
+            var results = Rows.Select(row => {
+                var f = F(columnLengths, row, delimiter);
+                return string.Format(f, row);
+            }).ToList();
 
             // create the divider
             var divider = Regex.Replace(columnHeaders, @"[^|]", "-");
@@ -209,11 +213,21 @@ namespace DynamicTables {
             // create the string format with padding
             var format = Format(columnLengths);
 
+            string f(object[] obj) {
+                return Enumerable.Range(0, Columns.Count)
+                    .Select(i => {
+                        var floating = obj[i].ToString().Where(FloatingCharacter.Glyph.IgnoreCharacters.Contains).Count();
+                        var k = "| {" + i + ",-" + (columnLengths[i] + floating) + "} ";
+                        return k;
+                    })
+                    .Aggregate((s, a) => s + a) + "|";
+            }
+
             // find the longest formatted line
             var columnHeaders = string.Format(format, Columns.ToArray());
 
             // add each row
-            var results = Rows.Select(row => string.Format(format, row)).ToList();
+            var results = Rows.Select(row => string.Format(f(row), row)).ToList();
 
             // create the divider
             var divider = Regex.Replace(columnHeaders, @"[^|]", "-");
@@ -239,6 +253,19 @@ namespace DynamicTables {
             return format;
         }
 
+        private string F(List<int> columnLengths, object[] obj, char delimiter = '|') {
+            var floating = FloatingCharacter.Glyph.IgnoreCharacters;
+            var delimiterStr = delimiter == char.MinValue ? string.Empty : delimiter.ToString();
+            var format = (Enumerable.Range(0, Columns.Count)
+                .Select(i => {
+                    var count = obj[i]?.ToString().Where(floating.Contains).Count() ?? 0;
+                    var a = " " + delimiterStr + " {" + i + ",-" + (columnLengths[i] + count) + "}";
+                    return a;
+                })
+                .Aggregate((s, a) => s + a) + " " + delimiterStr).Trim();
+            return format;
+        }
+
         private List<int> ColumnLengths() {
             var floats = FloatingCharacter.Glyph.IgnoreCharacters;
             var columnLengths = Columns
@@ -250,8 +277,8 @@ namespace DynamicTables {
                         var floatCount = value.Where(k => floats.Contains(k)).Count();
                         var length = value.Length;
                         //Console.WriteLine($"{length} {floatCount} {value}");
-                        //return length - floatCount;
-                        return length;
+                        return length - floatCount;
+                        // return length;
                     })
                     .Max())
                 .ToList();
